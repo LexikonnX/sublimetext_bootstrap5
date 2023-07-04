@@ -8,35 +8,19 @@ class BootstrapCompletions(sublime_plugin.EventListener):
         self.class_completions = [("%s \tBootstrap 5 Class" % s, s) for s in bootstrap_classes]
 
     def on_query_completions(self, view, prefix, locations):
-        if view.match_selector(locations[0], "text.html string.quoted"):
-            return self.get_html_completions(view, prefix, locations)
-        elif view.match_selector(locations[0], "source.js"):
-            return self.get_js_completions(view, prefix, locations)
+        if view.match_selector(locations[0], "text.html string.quoted source.js"):
+            return self.get_completions(view, prefix, locations)
         else:
             return []
 
-    def get_html_completions(self, view, prefix, locations):
+    def get_completions(self, view, prefix, locations):
         LIMIT = 250
         cursor = locations[0] - len(prefix) - 1
         start = max(0, cursor - LIMIT - len(prefix))
         line = view.substr(sublime.Region(start, cursor))
         parts = line.split('=')
         if len(parts) > 1 and (parts[-2].strip().endswith("class") or parts[-2].strip().endswith("className")):
-            if "={`" in line or '="' in line:
-                return self.class_completions
-            else:
-                return []
-        else:
-            return []
-
-    def get_js_completions(self, view, prefix, locations):
-        LIMIT = 250
-        cursor = locations[0] - len(prefix) - 1
-        start = max(0, cursor - LIMIT - len(prefix))
-        line = view.substr(sublime.Region(start, cursor))
-        parts = line.split('=')
-        if len(parts) > 1 and (parts[-2].strip().endswith("class") or parts[-2].strip().endswith("className")):
-            if "={`" in line or '="' in line:
+            if "={`" in line or '="' in line or "='" in line:
                 return self.class_completions
             else:
                 return []
